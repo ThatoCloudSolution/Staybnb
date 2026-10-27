@@ -1,0 +1,23 @@
+﻿@model Staybnb.Models.ViewModels.BookingViewModel
+@{
+    ViewData["Title"] = "Book Property";
+}
+
+<h2>Book: @Model.PropertyTitle</h2>
+<p>Price per night: R @Model.PricePerNight.ToString("N2")</p>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="PropertyId" />
+    <input type="hidden" asp-for="PropertyTitle" />
+    <input type="hidden" asp-for="PricePerNight" />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="CheckInDate"></label><input asp-for="CheckInDate" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="CheckOutDate"></label><input asp-for="CheckOutDate" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="NumberOfGuests"></label><input asp-for="NumberOfGuests" class="form-control" /></div>
+    <p class="text-muted">Total = (Price × Nights) + Cleaning Fee (R350) + Service Fee (10%)</p>
+    <button type="submit" class="btn btn-danger">Confirm Booking</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

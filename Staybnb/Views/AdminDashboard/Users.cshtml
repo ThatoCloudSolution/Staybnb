@@ -1,0 +1,32 @@
+﻿@model List<Staybnb.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<h2>Manage Users (SuperAdmin Only)</h2>
+
+<table class="table">
+    <thead>
+        <tr><th>Email</th><th>Name</th><th>Roles</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            var roles = (Dictionary<string, IList<string>>)ViewBag.UserRoles;
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.FirstName @user.LastName</td>
+                <td>@string.Join(", ", roles[user.Id])</td>
+                <td>
+                    @if (roles[user.Id].Contains("Guest"))
+                    {
+                        <form asp-action="PromoteToAdmin" method="post" style="display:inline">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <button class="btn btn-sm btn-primary">Promote to Admin</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

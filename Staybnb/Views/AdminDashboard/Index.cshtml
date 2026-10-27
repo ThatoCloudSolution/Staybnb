@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2>Dashboard Overview</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3"><div class="card p-3"><h5>@ViewBag.TotalUsers</h5><small>Total Users</small></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>@ViewBag.PendingApplications</h5><small>Pending Applications</small></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>@ViewBag.ActiveProperties</h5><small>Active Properties</small></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>R @ViewBag.PlatformRevenue.ToString("N2")</h5><small>Platform Revenue</small></div></div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3"><div class="card p-3"><h5>@ViewBag.TotalBookings</h5><small>Total Bookings</small></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>@ViewBag.ApprovedHosts</h5><small>Approved Hosts</small></div></div>
+</div>
+
+<a asp-action="Applications" class="btn btn-danger">Review Applications</a>
+@if (User.IsInRole("SuperAdmin"))
+{
+    <a asp-action="Users" class="btn btn-primary">Manage Users</a>
+}
+<a asp-action="ActivityLogs" class="btn btn-secondary">Activity Logs</a>
+
+<h3 class="mt-4">Recent Activity</h3>
+<table class="table">
+    <thead><tr><th>User</th><th>Action</th><th>Date</th><th>Type</th></tr></thead>
+    <tbody>
+        @foreach (var log in (List<Staybnb.Models.ActivityLog>)ViewBag.RecentActivity)
+        {
+            <tr>
+                <td>@log.User?.Email</td>
+                <td>@log.Action</td>
+                <td>@log.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@log.ActivityType</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Staybnb.Models;
-using System.Reflection.Emit;
 
 namespace Staybnb.Data
 {
@@ -31,46 +30,128 @@ namespace Staybnb.Data
         {
             base.OnModelCreating(builder);
 
-            // Property → Host (One-to-Many, Restrict delete)
-            builder.Entity<HostProperty>()
-                .HasOne(p => p.Host)
-                .WithMany(u => u.Properties)
-                .HasForeignKey(p => p.HostId)
+            // ===== Message — two FKs to ApplicationUser cause cascade path cycle =====
+            builder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Booking → Property (Restrict)
+            builder.Entity<Message>()
+                .HasOne(m => m.Receiver)
+                .WithMany()
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== Booking — two FKs (Property + Guest) =====
             builder.Entity<Booking>()
                 .HasOne(b => b.Property)
                 .WithMany(p => p.Bookings)
                 .HasForeignKey(b => b.PropertyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Booking → Guest (Restrict)
             builder.Entity<Booking>()
                 .HasOne(b => b.Guest)
                 .WithMany(u => u.Bookings)
                 .HasForeignKey(b => b.GuestId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Payment → Booking (One-to-One)
+            // ===== HostProperty → Host =====
+            builder.Entity<HostProperty>()
+                .HasOne(p => p.Host)
+                .WithMany(u => u.Properties)
+                .HasForeignKey(p => p.HostId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== Review — two FKs =====
+            builder.Entity<Review>()
+                .HasOne(r => r.Property)
+                .WithMany(p => p.Reviews)
+                .HasForeignKey(r => r.PropertyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Review>()
+                .HasOne(r => r.Reviewer)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(r => r.ReviewerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== WishlistItem — two FKs =====
+            builder.Entity<WishlistItem>()
+                .HasOne(w => w.User)
+                .WithMany(u => u.WishlistItems)
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<WishlistItem>()
+                .HasOne(w => w.Property)
+                .WithMany()
+                .HasForeignKey(w => w.PropertyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== Notification → User =====
+            builder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== ActivityLog → User =====
+            builder.Entity<ActivityLog>()
+                .HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== HostApplication — two FKs =====
+            builder.Entity<HostApplication>()
+                .HasOne(a => a.ApplicationUser)
+                .WithMany()
+                .HasForeignKey(a => a.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<HostApplication>()
+                .HasOne(a => a.Property)
+                .WithMany()
+                .HasForeignKey(a => a.PropertyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== PropertyImage → Property =====
+            builder.Entity<PropertyImage>()
+                .HasOne(pi => pi.Property)
+                .WithMany(p => p.Images)
+                .HasForeignKey(pi => pi.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== One-to-One: Payment → Booking =====
             builder.Entity<Payment>()
                 .HasOne(p => p.Booking)
                 .WithOne(b => b.Payment)
-                .HasForeignKey<Payment>(p => p.BookingId);
+                .HasForeignKey<Payment>(p => p.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // GuestCheckIn → Booking (One-to-One)
+            // ===== One-to-One: GuestCheckIn → Booking =====
             builder.Entity<GuestCheckIn>()
                 .HasOne(g => g.Booking)
                 .WithOne(b => b.GuestCheckIn)
-                .HasForeignKey<GuestCheckIn>(g => g.BookingId);
+                .HasForeignKey<GuestCheckIn>(g => g.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // CheckInProcess → Property (One-to-One)
+            // ===== One-to-One: CheckInProcess → Property =====
             builder.Entity<CheckInProcess>()
                 .HasOne(c => c.Property)
                 .WithOne(p => p.CheckInProcess)
-                .HasForeignKey<CheckInProcess>(c => c.PropertyId);
+                .HasForeignKey<CheckInProcess>(c => c.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Property ↔ Amenity (Many-to-Many)
+            // ===== One-to-Many: GuestDocument → GuestCheckIn =====
+            builder.Entity<GuestDocument>()
+                .HasOne(d => d.GuestCheckIn)
+                .WithMany(g => g.Documents)
+                .HasForeignKey(d => d.GuestCheckInId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== Many-to-Many: Property ↔ Amenity =====
             builder.Entity<HostProperty>()
                 .HasMany(p => p.Amenities)
                 .WithMany(a => a.Properties)

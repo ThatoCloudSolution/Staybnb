@@ -1,0 +1,20 @@
+﻿@model List<Staybnb.Models.HostApplication>
+@{
+    ViewData["Title"] = "Application Status";
+}
+
+<h2>Your Host Applications</h2>
+
+@foreach (var a in Model)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>@a.Property?.Title <span class="badge bg-@(a.Status == Staybnb.Models.ApplicationStatus.Approved ? "success" : a.Status == Staybnb.Models.ApplicationStatus.Rejected ? "danger" : "warning")">@a.Status</span></h5>
+            <p>Applied on @a.AppliedAt.ToString("yyyy-MM-dd")</p>
+            @if (!string.IsNullOrEmpty(a.AdminNotes))
+            {
+                <p><strong>Admin Notes:</strong> @a.AdminNotes</p>
+            }
+        </div>
+    </div>
+}

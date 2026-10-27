@@ -16,16 +16,11 @@ namespace Staybnb.Services
             _userManager = userManager;
         }
 
-        /// <summary>
-        /// Approves a HostApplication:
-        /// 1. Adds Host role
-        /// 2. Removes Guest role (user is either Guest OR Host, not both)
-        /// 3. Logs the action
-        /// </summary>
         public async Task<bool> ApproveApplicationAsync(int applicationId, string adminId)
         {
             var application = await _context.HostApplications
                 .Include(a => a.ApplicationUser)
+                .Include(a => a.Property)
                 .FirstOrDefaultAsync(a => a.Id == applicationId);
 
             if (application == null || application.Status == ApplicationStatus.Approved)
@@ -34,22 +29,20 @@ namespace Staybnb.Services
             var user = application.ApplicationUser;
             if (user == null) return false;
 
-            // Add Host role
+            // 1. Add Host role
             if (!await _userManager.IsInRoleAsync(user, "Host"))
-            {
                 await _userManager.AddToRoleAsync(user, "Host");
-            }
 
-            // Remove Guest role
+            // 2. Remove Guest role (Guest → Host swap)
             if (await _userManager.IsInRoleAsync(user, "Guest"))
-            {
                 await _userManager.RemoveFromRoleAsync(user, "Guest");
-            }
 
-            // Update status
+            // 3. Update status + activate property
             application.Status = ApplicationStatus.Approved;
+            if (application.Property != null)
+                application.Property.IsActive = true;
 
-            // Log activity
+            // 4. Log
             _context.ActivityLogs.Add(new ActivityLog
             {
                 UserId = adminId,
@@ -58,7 +51,7 @@ namespace Staybnb.Services
                 CreatedAt = DateTime.Now
             });
 
-            // Notify user
+            // 5. Notify user
             _context.Notifications.Add(new Notification
             {
                 UserId = user.Id,
@@ -75,6 +68,7 @@ namespace Staybnb.Services
         {
             var application = await _context.HostApplications
                 .Include(a => a.ApplicationUser)
+                .Include(a => a.Property)
                 .FirstOrDefaultAsync(a => a.Id == applicationId);
 
             if (application == null) return false;

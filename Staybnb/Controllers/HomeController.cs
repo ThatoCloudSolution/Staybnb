@@ -1,25 +1,54 @@
 using Microsoft.AspNetCore.Mvc;
-using Staybnb.Models;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using Staybnb.Data;
 
 namespace Staybnb.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public HomeController(ApplicationDbContext context)
         {
-            return View();
+            _context = context;
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Index(string? city, string? type)
         {
-            return View();
+            var query = _context.HostProperties
+                .Include(p => p.Images)
+                .Where(p => p.IsActive)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(city))
+                query = query.Where(p => p.City.Contains(city));
+
+            if (!string.IsNullOrEmpty(type))
+                query = query.Where(p => p.PropertyType == type);
+
+            ViewBag.Cities = await _context.HostProperties
+                .Where(p => p.IsActive)
+                .Select(p => p.City).Distinct().ToListAsync();
+
+            return View(await query.ToListAsync());
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var property = await _context.HostProperties
+                .Include(p => p.Images)
+                .Include(p => p.Host)
+                .Include(p => p.Reviews)
+                .Include(p => p.Amenities)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (property == null) return NotFound();
+            return View(property);
+        }
+
+        public IActionResult Privacy() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        public IActionResult Error() => View();
     }
 }

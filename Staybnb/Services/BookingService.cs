@@ -6,8 +6,8 @@ namespace Staybnb.Services
 {
     public class BookingService
     {
-        private const decimal SERVICE_FEE_RATE = 0.10m;  // 10% service fee
-        private const decimal CLEANING_FEE = 350m;      // Fixed cleaning fee in ZAR
+        private const decimal SERVICE_FEE_RATE = 0.10m;
+        private const decimal CLEANING_FEE = 350m;
 
         private readonly ApplicationDbContext _context;
 
@@ -16,15 +16,11 @@ namespace Staybnb.Services
             _context = context;
         }
 
-        /// <summary>
-        /// Calculates TotalPrice = (PricePerNight × Nights) + CleaningFee + ServiceFee
-        /// </summary>
         public decimal CalculateTotalPrice(decimal pricePerNight, int nights)
         {
             var subtotal = pricePerNight * nights;
-            var cleaningFee = CLEANING_FEE;
             var serviceFee = subtotal * SERVICE_FEE_RATE;
-            return subtotal + cleaningFee + serviceFee;
+            return subtotal + CLEANING_FEE + serviceFee;
         }
 
         public decimal GetCleaningFee() => CLEANING_FEE;
@@ -38,7 +34,6 @@ namespace Staybnb.Services
             var nights = (checkOut - checkIn).Days;
             if (nights <= 0) throw new InvalidOperationException("Invalid dates.");
 
-            var cleaningFee = CLEANING_FEE;
             var serviceFee = property.PricePerNight * nights * SERVICE_FEE_RATE;
 
             var booking = new Booking
@@ -48,7 +43,7 @@ namespace Staybnb.Services
                 CheckInDate = checkIn,
                 CheckOutDate = checkOut,
                 NumberOfGuests = numberOfGuests,
-                CleaningFee = cleaningFee,
+                CleaningFee = CLEANING_FEE,
                 ServiceFee = serviceFee,
                 TotalPrice = CalculateTotalPrice(property.PricePerNight, nights),
                 Status = BookingStatus.Pending,
@@ -57,7 +52,6 @@ namespace Staybnb.Services
 
             _context.Bookings.Add(booking);
 
-            // Notify host
             _context.Notifications.Add(new Notification
             {
                 UserId = property.HostId,

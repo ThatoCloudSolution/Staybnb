@@ -1,0 +1,30 @@
+﻿@model Staybnb.Models.ViewModels.HostApplicationViewModel
+@{
+    ViewData["Title"] = "Become a Host";
+}
+
+<h2>Become a Host</h2>
+<form asp-action="Apply" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="Title"></label><input asp-for="Title" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Description"></label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
+    <div class="mb-3"><label asp-for="PricePerNight"></label><input asp-for="PricePerNight" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Address"></label><input asp-for="Address" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="City"></label><input asp-for="City" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="PropertyType"></label><input asp-for="PropertyType" class="form-control" /></div>
+    <div class="row mb-3">
+        <div class="col"><label asp-for="Bedrooms"></label><input asp-for="Bedrooms" class="form-control" /></div>
+        <div class="col"><label asp-for="Bathrooms"></label><input asp-for="Bathrooms" class="form-control" /></div>
+        <div class="col"><label asp-for="MaxGuests"></label><input asp-for="MaxGuests" class="form-control" /></div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Image"></label>
+        <input asp-for="Image" type="file" class="form-control" accept="image/*" />
+        <span asp-validation-for="Image" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-danger">Submit Application</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
