@@ -1,39 +1,70 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Staybnb</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+            <div class="container">
+                <a class="navbar-brand text-danger fw-bold" asp-controller="Home" asp-action="Index">🏠 staybnb</a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="nav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            if (User.IsInRole("Host"))
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="HostDashboard" asp-action="Index">Host Dashboard</a></li>
+                            }
+                            if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Admin</a></li>
+                            }
+                            if (User.IsInRole("Guest"))
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="Booking" asp-action="MyBookings">My Bookings</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="HostApplication" asp-action="Apply">Become a Host</a></li>
+                            }
+                            <li class="nav-item"><a class="nav-link" asp-controller="Notifications" asp-action="Index">🔔 Notifications</a></li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button class="btn btn-link nav-link">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Login</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Register</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
     <div class="container">
-        <a class="navbar-brand text-danger fw-bold" asp-controller="Home" asp-action="Index">🏠 staybnb</a>
-        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    if (User.IsInRole("Host"))
-                    {
-                        <li class="nav-item"><a class="nav-link" asp-controller="HostDashboard" asp-action="Index">Host Dashboard</a></li>
-                    }
-                    if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
-                    {
-                        <li class="nav-item"><a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Admin</a></li>
-                    }
-                    if (User.IsInRole("Guest"))
-                    {
-                        <li class="nav-item"><a class="nav-link" asp-controller="Booking" asp-action="MyBookings">My Bookings</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="HostApplication" asp-action="Apply">Become a Host</a></li>
-                    }
-                    <li class="nav-item"><a class="nav-link" asp-controller="Notifications" asp-action="Index">🔔 Notifications</a></li>
-                    <li class="nav-item">
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                            <button class="btn btn-link nav-link">Logout</button>
-                        </form>
-                    </li>
-                }
-                else
-                {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Register</a></li>
-                }
-            </ul>
-        </div>
+        <main role="main" class="pb-3">
+            @RenderBody()  <!-- THIS IS THE CRUCIAL LINE THAT WAS MISSING -->
+        </main>
     </div>
-</nav>
+
+    <footer class="border-top footer text-muted mt-5">
+        <div class="container">
+            &copy; 2026 - Staybnb - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -7,46 +7,15 @@
 
 <table class="table">
     <thead>
-        <tr><th>Applicant</th><th>Property</th><th>Price</th><th>Image</th><th>Applied</th><th>Status</th><th>Actions</th></tr>
-    </thead>
-    <tbody>
-        @foreach (var a in Model)
-        {
-            <tr>
-                <td>@a.ApplicationUser?.Email</td>
-                <td>@a.Property?.Title</td>
-                <td>R @a.Property?.PricePerNight.ToString("N2")</td>
-                <td>
-                    @if (a.Property?.Images.FirstOrDefault() != null)
-                    {
-                        <img src="@a.Property.Images.First().ImageUrl" style="height:50px" />
-                    }
-                </td>
-                <td>@a.AppliedAt.ToShortDateString()</td>
-                <td>@a.Status</td>
-                <td>
-                    @if (a.Status == Staybnb.Models.ApplicationStatus.Pending)
-                    {
-                        <form asp-action="Approve" asp-route-id="@a.Id" method="post" style="display:inline">
-                            <button class="btn btn-sm btn-success">Approve</button>
-                        </form>
-                        <form asp-action="Reject" asp-route-id="@a.Id" method="post" style="display:inline">
-                            <input type="hidden" name="notes" value="Does not meet requirements" />
-                            <button class="btn btn-sm btn-danger">Reject</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>@model List<Staybnb.Models.HostApplication>
-@{ ViewData["Title"] = "Host Applications"; }
-
-<h2>Host Applications</h2>
-
-<table class="table">
-    <thead>
-        <tr><th>Applicant</th><th>Property</th><th>Price</th><th>Image</th><th>Applied</th><th>Status</th><th>Actions</th></tr>
+        <tr>
+            <th>Applicant</th>
+            <th>Property</th>
+            <th>Price</th>
+            <th>Image</th>
+            <th>Applied</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
     </thead>
     <tbody>
         @foreach (var a in Model)
